@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Tester</title>
+    <style>
+        :root {
+            --primary: #ff6b6b;
+            --secondary: #4ecdc4;
+            --dark: #292f36;
+            --light: #f7fff7;
+            --gray: #6c757d;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background-color: var(--dark);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: white;
+            border-right: 1px solid #e1e5eb;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .request-section {
+            padding: 1rem;
+            background-color: white;
+            border-bottom: 1px solid #e1e5eb;
+        }
+        
+        .request-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        select, input, button {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        select {
+            width: 100px;
+        }
+        
+        .url-input {
+            flex: 1;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #ff5252;
+        }
+        
+        .secondary-button {
+            background-color: var(--gray);
+        }
+        
+        .secondary-button:hover {
+            background-color: #5a6268;
+        }
+        
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom: 2px solid var(--primary);
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 1rem 0;
+            height: 200px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .headers-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .headers-table th, .headers-table td {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        
+        .headers-table th {
+            background-color: #f8f9fa;
+        }
+        
+        .response-section {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background-color: white;
+        }
+        
+        .response-status {
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .response-tabs {
+            display: flex;
+            margin-bottom: 0.5rem;
+        }
+        
+        .response-tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .response-tab.active {
+            border-bottom: 2px solid var(--secondary);
+            font-weight: bold;
+        }
+        
+        .response-content {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        
+        .json-formatted {
+            line-height: 1.5;
+        }
+        
+        .json-key {
+            color: #d63384;
+        }
+        
+        .json-string {
+            color: #20c997;
+        }
+        
+        .json-number {
+            color: #fd7e14;
+        }
+        
+        .json-boolean {
+            color: #6610f2;
+        }
+        
+        .json-null {
+            color: #6c757d;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            resize: none;
+        }
+        
+        .add-row {
+            margin-top: 0.5rem;
+        }
+        
+        .history-item {
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #f8f9fa;
+        }
+        
+        .history-item:hover {
+            background-color: #e9ecef;
+        }
+        
+        .method-tag {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        
+        .GET {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        .POST {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+        
+        .PUT {
+            background-color: #fff3cd;
+            color: #664d03;
+        }
+        
+        .DELETE {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">API Tester</div>
+        <div>
+            <button id="save-btn" class="secondary-button">Save</button>
+            <button id="import-btn" class="secondary-button">Import</button>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="sidebar">
+            <h3>History</h3>
+            <div id="history-list">
+                <!-- History items will be added here -->
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="request-section">
+                <div class="request-controls">
+                    <select id="method-select">
+                        <option value="GET">GET</option>
+                        <option value="POST">POST</option>
+                        <option value="PUT">PUT</option>
+                        <option value="DELETE">DELETE</option>
+                        <option value="PATCH">PATCH</option>
+                    </select>
+                    <input type="text" id="url-input" class="url-input" placeholder="https://api.example.com/resource">
+                    <button id="send-btn">Send</button>
+                    <button id="params-btn" class="secondary-button">Params</button>
+                </div>
+                
+                <div class="tab-container">
+                    <div class="tab active" data-tab="headers">Headers</div>
+                    <div class="tab" data-tab="body">Body</div>
+                    <div class="tab" data-tab="auth">Auth</div>
+                </div>
+                
+                <div class="tab-content active" id="headers-tab">
+                    <table class="headers-table">
+                        <thead>
+                            <tr>
+                                <th>Key</th>
+                                <th>Value</th>
+                                <th>Description</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="headers-table-body">
+                            <tr>
+                                <td><input type="text" class="header-key" placeholder="Content-Type"></td>
+                                <td><input type="text" class="header-value" placeholder="application/json"></td>
+                                <td><input type="text" class="header-desc" placeholder="Optional description"></td>
+                                <td><button class="remove-header">×</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button id="add-header" class="add-row secondary-button">Add Header</button>
+                </div>
+                
+                <div class="tab-content" id="body-tab">
+                    <textarea id="request-body" placeholder='{"key": "value"}'></textarea>
+                </div>
+                
+                <div class="tab-content" id="auth-tab">
+                    <select id="auth-type">
+                        <option value="none">No Auth</option>
+                        <option value="basic">Basic Auth</option>
+                        <option value="bearer">Bearer Token</option>
+                        <option value="api-key">API Key</option>
+                    </select>
+                    
+                    <div id="auth-fields">
+                        <!-- Auth fields will be shown here based on selection -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="response-section">
+                <div class="response-status" id="response-status">Status: Not sent yet</div>
+                
+                <div class="response-tabs">
+                    <div class="response-tab active" data-response-tab="body">Body</div>
+                    <div class="response-tab" data-response-tab="headers">Headers</div>
+                    <div class="response-tab" data-response-tab="cookies">Cookies</div>
+                </div>
+                
+                <div class="response-content active" id="response-body">
+                    {/* Response will be shown here */}
+                </div>
+                
+                <div class="response-content" id="response-headers">
+                    {/* Headers will be shown here */}
+                </div>
+                
+                <div class="response-content" id="response-cookies">
+                    {/* Cookies will be shown here */}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src='script.js'>
+      
+    </script>
+</body>
+</html>
